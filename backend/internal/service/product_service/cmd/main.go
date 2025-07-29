@@ -2,7 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"github.com/shishir54234/NewsScraper/backend/http/http_client"
+	"/http/http_client"
 )
 
 
