@@ -2,7 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"github.com/shishir54234/NewsScraper/backend/internal/pkg/http/httpclient"
+	"github.com/shishir54234/NewsScraper/backend/http/http_client"
 )
 
 
@@ -13,13 +13,9 @@ func main() {
 				httpclient.NewHttpClient,
 			),
 			fx.Invoke(fetchNews),
-
-
-
-		)
-
-
-	)
+		),
+	).Run()	
+	fmt.Println("News fetching service started")
 }
 
 
