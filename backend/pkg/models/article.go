@@ -1,4 +1,5 @@
-package dto
+package models
+
 
 
 
@@ -31,3 +32,7 @@ type Article struct {
     AIContent       string    `json:"ai_content"`
     Duplicate       bool      `json:"duplicate"`
 }
+
+
+
+
