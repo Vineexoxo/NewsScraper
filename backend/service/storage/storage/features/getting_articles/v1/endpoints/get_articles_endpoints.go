@@ -6,8 +6,8 @@ import
 	"github.com/go-playground/validator"
 	echo "github.com/labstack/echo/v4"
 	mediatr "github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	commandsv1 "github.com/shishir54234/NewsScraper/backend/service/storage/storage/features/getting_articles/commands/"
+	logger "github.com/shishir54234/NewsScraper/backend/pkg"
+	commandsv1 "github.com/shishir54234/NewsScraper/backend/service/storage/storage/features/getting_articles/v1/commands"
 	
 	dtosv1 "github.com/shishir54234/NewsScraper/backend/service/storage/storage/features/getting_articles/v1/dtos"
 	"github.com/pkg/errors"
