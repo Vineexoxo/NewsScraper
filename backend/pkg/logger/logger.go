@@ -19,14 +19,17 @@ type ILogger interface {
 	Tracef(format string, args ...interface{})
 }
 
-var Logger ILogger
+func (i ILogger) Fatalf(s string, err error) {
+	panic("unimplemented")
+}
 
+var Logger ILogger
 
 type LoggerConfig struct {
 	LogLevel string `yaml:"log_level"`
 }
 type appLogger struct {
-	level string
+	level  string
 	logger *log.Logger
 }
 
@@ -47,16 +50,15 @@ func (l *appLogger) getLevel() log.Level {
 	return log.InfoLevel
 }
 
-
 func InitLogger(config *LoggerConfig) ILogger {
 	logger := &appLogger{
-		level: config.LogLevel,
+		level:  config.LogLevel,
 		logger: log.New(),
 	}
 	logger.logger = log.StandardLogger()
-	logLevel:= logger.getLevel()
+	logLevel := logger.getLevel()
 
-	env:=os.Getenv("APP_ENV")
+	env := os.Getenv("APP_ENV")
 
 	if env == "production" {
 		logger.logger.SetFormatter(&log.JSONFormatter{})
@@ -111,8 +113,6 @@ func (l *appLogger) Panic(args ...interface{}) {
 func (l *appLogger) Panicf(format string, args ...interface{}) {
 	l.logger.Panicf(format, args...)
 }
-
-
 
 func (l *appLogger) Fatal(args ...interface{}) {
 	l.logger.Fatal(args...)

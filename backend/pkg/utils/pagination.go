@@ -3,7 +3,7 @@ package utils
 
 import (
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
+	"github.com/shishir54234/NewsScraper/backend/pkg/mapper"
 	"math"
 	"strconv"
 
@@ -23,8 +23,10 @@ type ListResult[T interface{}] struct {
 	Items      []T   `json:"items,omitempty" bson:"items"`
 }
 
-func NewListResult[T any](items []T, size int, page int, totalItems int64) *ListResult[T] {
-	listResult := &ListResult[T]{Items: items, Size: size, Page: page, TotalItems: totalItems}
+func NewListResult[T any](items []T, size int, page int, 
+totalItems int64) *ListResult[T] {
+	listResult := &ListResult[T]{Items: items, Size: size, Page: page, 
+	TotalItems: totalItems}
 
 	listResult.TotalPage = getTotalPages(totalItems, size)
 

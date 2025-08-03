@@ -6,7 +6,7 @@ type RequestArticleDto struct {
 	URL string `json:"url" validate:"required"`
 }
 
-type ResponseRequestDto struct {
+type ResponseArticleDto struct {
 	URL string 
 	DESC string
 	Date string

@@ -1,13 +1,15 @@
 package contracts
 
-import(
+import (
 	"context"
-	"github.com/shishir54234/NewsScraper/backend/pkg/utils"
+
+	"github.com/shishir54234/NewsScraper/backend/pkg/models"
+	utils "github.com/shishir54234/NewsScraper/backend/pkg/utils"
 )
 
 
 type ArticleRepository interface {
-	GetAllArticles(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error)
+	GetAllArticles(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Article], error)
 
 
 }
