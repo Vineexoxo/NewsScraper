@@ -6,5 +6,5 @@ import (
 )
 
 func ProductToProductResponseDto(product *models.Article) *dtos.RequestArticleDto {
-	return &dtos.RequestArticleDto{}
+	return &dtos.RequestArticleDto{URL: product.Link}
 }

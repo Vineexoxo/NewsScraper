@@ -19,9 +19,6 @@ type ILogger interface {
 	Tracef(format string, args ...interface{})
 }
 
-func (i ILogger) Fatalf(s string, err error) {
-	panic("unimplemented")
-}
 
 var Logger ILogger
 

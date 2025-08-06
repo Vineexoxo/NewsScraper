@@ -2,8 +2,11 @@ package commands
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
+	"github.com/shishir54234/NewsScraper/backend/pkg/models"
 	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
 	"github.com/shishir54234/NewsScraper/backend/pkg/utils"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/data/contracts"
@@ -13,22 +16,27 @@ import (
 type GetArticlesHandler struct {
 	log logger.ILogger
 	rabbitmqPublisher *rabbitmq.IPublisher
-	productRepository contracts.ArticleRepository 
+	articleRepository contracts.ArticleRepository 
 	ctx context.Context
 }
 
 
 func NewGetArticlesHandler(log logger.ILogger, rabbitmqPublisher *rabbitmq.IPublisher, 
-productRepository contracts.ArticleRepository, ctx context.Context) *GetArticlesHandler {
-	return &GetArticlesHandler{log: log, rabbitmqPublisher: rabbitmqPublisher, productRepository: productRepository, ctx: ctx}
+articleRepository contracts.ArticleRepository, ctx context.Context) *GetArticlesHandler {
+	return &GetArticlesHandler{log: log, rabbitmqPublisher: rabbitmqPublisher, articleRepository: articleRepository, ctx: ctx}
 }
 
 
-func(c* GetArticlesHandler) Handle(ctx context.Context, query *GetArticles)(*dtosv1.ResponseArticleDto, error){
-	articles, err:= c.productRepository.GetAllArticles(ctx, query.ListQuery)
-	if err!=nil{ return nil, err}
-	_, err = utils.ListResultToListResultDto[*dtosv1.RequestArticleDto](articles)
+func(c* GetArticlesHandler) Handle(ctx context.Context, query *GetArticles)([]*dtosv1.ResponseArticleDto, error){
 	
+	articles, err:= c.articleRepository.GetAllArticles(ctx, query.ListQuery)
+	if err!=nil || articles==nil { return nil, err}
+	fmt.Println("ARTICLE TYPE", reflect.TypeOf(articles.Items))
+	
+	ret, err := utils.ListResultToListResultDto[*dtosv1.ResponseArticleDto, *models.Article](articles)
+	
+
+
 	if err!=nil { return nil, err}
-	return &dtosv1.ResponseArticleDto{}, nil
+	return ret.Items, nil
 }

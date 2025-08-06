@@ -23,11 +23,20 @@ type PostgresDB struct {
 	DB *sqlx.DB
 	config *PostgresConfig
 }	
+func NewPostGresConnStr(cfg *PostgresConfig) string {
+	connStr := fmt.Sprintf(
+        "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+        cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName,
+    )
+    fmt.Println("🔍 Final Postgres DSN:", connStr)
+    return connStr
 
+}
 func NewPostgresDB(dataSourceName string, config *PostgresConfig) (*PostgresDB, error) {
 	db, err := sqlx.Connect("postgres", dataSourceName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		
+		return nil, fmt.Errorf("failed to connect to database: %w", err, "dataSourceName", dataSourceName)
 	}
 	// Set connection pool settings
 	db.SetMaxOpenConns(25)
@@ -56,15 +65,16 @@ func (db* PostgresDB) Health() error{
 	return db.DB.Ping()
 }
 
-func Migrate(gorm *gorm.DB, types ...interface{}) error {
+func Migrate(db *PostgresDB, types ...interface{}) error {
 
-	for _, t := range types {
-		err := gorm.AutoMigrate(t)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	// for _, t := range types {
+	// 	err := db.DB.Mig(t)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+	// return nil
+	return nil 
 }
 
 func (db *PostgresDB) Transaction(fn func(*sqlx.Tx)) (error) {

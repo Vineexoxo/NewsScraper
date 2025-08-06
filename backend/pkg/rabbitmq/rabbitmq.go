@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/streadway/amqp"
-	"google.golang.org/appengine/log"
+	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/cenkalti/backoff/v4"
 )
 
@@ -18,7 +18,11 @@ type RabbitMQConfig struct {
 	Kind         string
 }
 
-func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection, error){
+func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context, log logger.ILogger) (*amqp.Connection, error){
+	if(cfg == nil){
+		return nil, fmt.Errorf("rabbitMQconfig is nil")
+	}
+	
 	connAddr:= fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
 
 	bkoff:= backoff.NewExponentialBackOff()
@@ -30,14 +34,14 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 	for i:=0; i<maxRetries; i++{
 		conn, err= amqp.Dial(connAddr)
 		if err==nil{
-			log.Errorf(ctx, "Failed to connect to RabbitMQ: Connection information: %s",  connAddr)
+			log.Errorf("Failed to connect to RabbitMQ: Connection information: %s",  connAddr, ctx)
 			return conn, nil
 		}
 		time.Sleep(bkoff.NextBackOff())
 	
 	
 	}
-	log.Infof(ctx, "Connected to rabbitmq")
+	fmt.Print("Connected to rabbmitMq")
 	go func(){
 		select {
 			// context done : i.e connection is closed, so a goroutine that is always running 
@@ -45,9 +49,9 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 			case <-ctx.Done():
 				err:=conn.Close()
 				if err!=nil {
-					log.Errorf(ctx, "Failed to close connection to RabbitMQ: %v", err)
+					log.Errorf("Failed to close connection to RabbitMQ: %v", err, ctx)
 				}else{
-					log.Infof(ctx, "Closed connection to RabbitMQ")
+					log.Infof("Closed connection to RabbitMQ", ctx)
 				}
 		}
 	}()

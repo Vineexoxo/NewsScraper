@@ -1,12 +1,12 @@
 package utils
 
-
 import (
 	"fmt"
-	"github.com/shishir54234/NewsScraper/backend/pkg/mapper"
 	"math"
+	"reflect"
 	"strconv"
 
+	"github.com/shishir54234/NewsScraper/backend/pkg/mapper"
 	"github.com/labstack/echo/v4"
 )
 
@@ -174,11 +174,23 @@ func (q *ListQuery) GetQueryString() string {
 }
 
 func ListResultToListResultDto[TDto any, TModel any](listResult *ListResult[TModel]) (*ListResult[TDto], error) {
-	items, err := mapper.Map[[]TDto](listResult.Items)
-	if err != nil {
-		return nil, err
-	}
+	var tDto TDto
+	var tModel TModel
 
+	fmt.Println("TDto type:", reflect.TypeOf(tDto))
+	fmt.Println("TModel type:", reflect.TypeOf(tModel))
+
+
+	if(listResult.Items == nil) {
+		fmt.Println("LOLLL U GOT REKT")
+
+	}
+	var items []TDto
+	for _, item := range listResult.Items {
+		curr,err := mapper.Map[TDto](item)
+		if err!=nil{ fmt.Println("Well well ", err)}
+		items=append(items, curr)
+	}
 	return &ListResult[TDto]{
 		Items:      items,
 		Size:       listResult.Size,
