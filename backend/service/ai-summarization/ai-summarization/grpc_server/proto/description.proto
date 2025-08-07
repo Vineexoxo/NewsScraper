@@ -1,0 +1,15 @@
+syntax = "proto3" 
+package proto
+service DescriptionService {
+  rpc GenerateDescription(GenerateDescriptionRequest) returns (GenerateDescriptionResponse);
+}
+
+message GenerateDescriptionRequest {
+    string url = 1;
+    string description = 2;
+}
+
+message GenerateDescriptionResponse {
+  string url = 1;
+  string description = 2;
+}
