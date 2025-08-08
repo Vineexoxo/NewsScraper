@@ -1,0 +1,21 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "/";
+
+service ArticleService {
+  rpc GetArticle(GetArticleRequest) returns (GetArticleResponse);
+}
+
+message GetArticleRequest {
+  string article_id = 1;
+}
+
+message GetArticleResponse {
+  Article article = 1;
+}
+
+message Article {
+  string link = 1;
+  string content = 2;
+}
