@@ -20,10 +20,13 @@ type GenerateDescriptionHandler struct {
 	ctx               context.Context
 }
 
-func NewGenerateDescriptionHandler(log logger.ILogger, 
+func NewGenerateDescriptionHandler(
+llm_client llm_client.LLMClient,
+log logger.ILogger, 
 rabbitmqPublisher *rabbitmq.IPublisher, 
 ctx context.Context) *GenerateDescriptionHandler {
 	return &GenerateDescriptionHandler{log: log, 
+	llmClient: llm_client,
 	rabbitmqPublisher: *rabbitmqPublisher, 
 	ctx: ctx}
 }
@@ -31,6 +34,7 @@ ctx context.Context) *GenerateDescriptionHandler {
 
 func (dh *GenerateDescriptionHandler) GenerateDescription (ctx context.Context, 
 query *descriptionpb.GenerateDescriptionRequest) (*descriptionpb.GenerateDescriptionResponse, error) {
+	fmt.Println("UCKCKICJISS SHLOK", query.Url, "CRAZY", query.Description)
 	result, err:= dh.llmClient.GenerateDescription(ctx, query.Description)
 	if err!=nil{
 		fmt.Println("The llm client isnt working", err)

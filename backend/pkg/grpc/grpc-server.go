@@ -3,15 +3,18 @@ package grpc
 import (
 	"context"
 	"fmt"
+
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/pkg/errors"
+	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
+
 	// "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"net"
+	"time"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
-	"net"
-	"time"
 )
 
 const (

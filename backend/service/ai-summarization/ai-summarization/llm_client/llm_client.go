@@ -1,11 +1,16 @@
 package llm_client
 
 import (
-	"bytes"
+	// "bytes"
 	"context"
-	"encoding/json"
+	// "encoding/json"
+	"fmt"
+
 	// "fmt"
 	"net/http"
+
+	"github.com/shishir54234/NewsScraper/backend/pkg/config"
+	"google.golang.org/genai"
 )
 
 type LLMClient interface {
@@ -18,32 +23,45 @@ type openaiClient struct {
 	baseURL    string
 }
 
-func NewLLMClient(apiKey, baseURL string) LLMClient {
-	return &openaiClient{
-		httpClient: http.DefaultClient,
-		apiKey:     apiKey,
-		baseURL:    baseURL,
-	}
+type geminiAiClient struct {
+	client     *genai.Client
+	apiKey     string
+	baseURL    string
 }
 
-func (o *openaiClient) GenerateDescription(ctx context.Context, content string) (string, error) {
-	body, _ := json.Marshal(map[string]string{"content": content})
 
-	req, _ := http.NewRequestWithContext(ctx, "POST", o.baseURL+"/v1/description", bytes.NewBuffer(body))
-	req.Header.Set("Authorization", "Bearer "+o.apiKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := o.httpClient.Do(req)
+func NewLLMClient(llm_client_config *config.LlmConfig) LLMClient {
+	// return &openaiClient{
+	// 	httpClient: http.DefaultClient,
+	// 	apiKey:     llm_client_config.ApiKey,
+	// 	baseURL:    llm_client_config.BaseURL,
+	// }
+	config := genai.ClientConfig{
+		APIKey:  llm_client_config.ApiKey,
+		Backend: genai.BackendGeminiAPI,
+	}
+	new_client, err:= genai.NewClient(context.Background(), &config)
 	if err != nil {
-		return "", err
+		fmt.Println("Error:", err)
 	}
-	defer resp.Body.Close()
+	return &geminiAiClient{
+		client:     new_client,
+		apiKey:     llm_client_config.ApiKey,
+		baseURL:    llm_client_config.BaseURL,
+	}
 
-	var result struct {
-		Description string `json:"description"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+
+}
+
+func (g *geminiAiClient) GenerateDescription(ctx context.Context, content string) (string, error) {
+	result, err:= g.client.Models.GenerateContent(ctx, "gemini-2.0-flash",
+        genai.Text("Explain how AI works in a few words"),
+        nil,
+    )
+    if err != nil {
+        fmt.Println("Error:", err)
 		return "", err
-	}
-	return result.Description, nil
+    }
+    fmt.Println(result.Text())
+	return result.Text(), nil
 }

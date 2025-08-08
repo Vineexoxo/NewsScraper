@@ -8,26 +8,33 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
+	"github.com/shishir54234/NewsScraper/backend/pkg/config"
 	"github.com/shishir54234/NewsScraper/backend/pkg/grpc"
+	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
+	"github.com/shishir54234/NewsScraper/backend/pkg/otel"
+	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
 	"github.com/spf13/viper"
 )
 
-type Llm_config struct {
-	ApiKey  string
-	BaseURL string
-}
+
 var configPath string 
 type Config struct {
-	ServiceName string
-	LLMConfig   *Llm_config
-	Grpc *grpc.GrpcConfig
+	ServiceName  string                        `mapstructure:"serviceName"`
+	Logger       *logger.LoggerConfig          `mapstructure:"logger"`
+	Rabbitmq     *rabbitmq.RabbitMQConfig      `mapstructure:"rabbitmq"`
+	// Echo         *echoserver.EchoConfig        `mapstructure:"echo"`
+	Grpc         *grpc.GrpcConfig              `mapstructure:"grpc"`
+	Llmconfig  	*config.LlmConfig                  `mapstructure:"llmConfig"`
+	Jaeger       *otel.JaegerConfig            `mapstructure:"jaeger"`
 }
-func init(){
+func Init(){
 	flag.StringVar(&configPath, "config", "", "generating description microservices")
 }
 
-func initConfig()(*Config, *Llm_config, *grpc.GrpcConfig, error){
+func InitConfig()(*Config, *config.LlmConfig, *grpc.GrpcConfig,*rabbitmq.RabbitMQConfig, 
+*logger.LoggerConfig, 
+*otel.JaegerConfig,
+error){
 	env:=os.Getenv("APP_ENV")
 	if env == ""{
 		env="development"
@@ -39,7 +46,7 @@ func initConfig()(*Config, *Llm_config, *grpc.GrpcConfig, error){
 		}else {
 			d,err:=dirname()
 			if err!=nil{
-				return nil ,err
+				return nil ,nil, nil,nil, nil,nil,err
 			}
 			configPath=d
 		}
@@ -51,12 +58,14 @@ func initConfig()(*Config, *Llm_config, *grpc.GrpcConfig, error){
 	viper.SetConfigType("json")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		return nil ,nil, nil, nil,nil,nil,err
 	}
 	if err := viper.Unmarshal(cfg); err != nil {
-		return nil, err
+		return nil ,nil, nil, nil,nil,nil,err
 	}
-	return cfg, nil
+	fmt.Println("API_KEY", cfg.Llmconfig.ApiKey)
+	fmt.Println("BASE_URL", cfg.Llmconfig.BaseURL)
+	return cfg, cfg.Llmconfig, cfg.Grpc,cfg.Rabbitmq, cfg.Logger, cfg.Jaeger, nil 
 }
 
 func GetMicroserviceName(serviceName string) string {
@@ -78,3 +87,4 @@ func dirname() (string, error) {
 	}
 	return filepath.Dir(filename), nil
 }
+

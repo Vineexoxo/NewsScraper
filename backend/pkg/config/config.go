@@ -14,7 +14,10 @@ type Config struct {
 	AI       AIConfig       `yaml:"ai"`
 	Logging  LoggingConfig  `yaml:"logging"`
 }
-
+type LlmConfig struct {
+	ApiKey  string
+	BaseURL string
+}
 type ServerConfig struct {
 	Port string `yaml:"port"`
 	Host string `yaml:"host"`
