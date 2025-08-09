@@ -13,12 +13,14 @@ import (
 	"go.uber.org/fx"
 )
 
-func RunServers(lc fx.Lifecycle, log logger.ILogger, e *echo.Echo, ctx context.Context, cfg *config.Config) error {
+func RunServers(lc fx.Lifecycle, log logger.ILogger, e *echo.Echo, 
+ctx context.Context, cfg *config.Config) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			go func() {
-				if err := echoserver.RunHttpServer(ctx, e, log, cfg.Echo); !errors.Is(err, http.ErrServerClosed) {
+				if err := echoserver.RunHttpServer(ctx, 
+				e, log, cfg.Echo); !errors.Is(err, http.ErrServerClosed) {
 					fmt.Printf("error running http server: %v", err)
 				}
 			}()

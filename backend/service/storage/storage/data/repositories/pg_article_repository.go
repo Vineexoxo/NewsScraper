@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"reflect"
+	"strings"
+
+	// "reflect"
 
 	// "database/sql"
 	// "fmt"
@@ -39,102 +41,150 @@ func NewPostgresArticleRepository(log logger.ILogger, cfg *pgsql.PostgresConfig,
 }
 
 func (p *PostgresArticleRepository) GetAllArticles(ctx context.Context, listQuery *utils.ListQuery) (
-	*utils.ListResult[*models.Article], error) {
-	stats := p.gorm.DB.Stats()
+    *utils.ListResult[*models.Article], error) {
 
-	fmt.Printf(`
-	GORM DB Connection Pool Stats:
-	------------------------------------
-	Max Open Connections : %d
-	Open Connections     : %d
-	In Use Connections   : %d
-	Idle Connections     : %d
-	Wait Count           : %d
-	Wait Duration        : %s
-	Max Idle Closed      : %d
-	Max Idle Time Closed : %d
-	Max Lifetime Closed  : %d
-	`,
-		stats.MaxOpenConnections,
-		stats.OpenConnections,
-		stats.InUse,
-		stats.Idle,
-		stats.WaitCount,
-		stats.WaitDuration,
-		stats.MaxIdleClosed,
-		stats.MaxIdleTimeClosed,
-		stats.MaxLifetimeClosed,
-	)
-	rows,err := p.gorm.DB.Query("SELECT * FROM articles")
-	defer rows.Close()
-	if err != nil {
-		fmt.Println("ERORRRR", err)
-		return nil, err
-	}
-	fmt.Println("Type", reflect.TypeOf(rows))
-	var articles []*models.Article
+    stats := p.gorm.DB.Stats()
+    fmt.Printf(`
+    GORM DB Connection Pool Stats:
+    ------------------------------------
+    Max Open Connections : %d
+    Open Connections     : %d
+    In Use Connections   : %d
+    Idle Connections     : %d
+    Wait Count           : %d
+    Wait Duration        : %s
+    Max Idle Closed      : %d
+    Max Idle Time Closed : %d
+    Max Lifetime Closed  : %d
+    `,
+        stats.MaxOpenConnections,
+        stats.OpenConnections,
+        stats.InUse,
+        stats.Idle,
+        stats.WaitCount,
+        stats.WaitDuration,
+        stats.MaxIdleClosed,
+        stats.MaxIdleTimeClosed,
+        stats.MaxLifetimeClosed,
+    )
 
-	for rows.Next() {
-		var a models.Article
+    // ---- Build SQL ----
+    baseQuery := "SELECT * FROM articles"
+    whereParts := []string{}
+    args := []interface{}{}
+    argIndex := 1 // for $1, $2, etc.
 
-		// Temporary holders for nullable and array fields
-		var (
-			imageURL, videoURL sql.NullString
-			keywordsArr        pq.StringArray
-			creatorArr         pq.StringArray
-			countryArr         pq.StringArray
-			categoryArr        pq.StringArray
-		)
+    comparisonMap := map[string]string{
+        "eq":  "=",
+        "neq": "!=",
+        "gt":  ">",
+        "lt":  "<",
+        "gte": ">=",
+        "lte": "<=",
+        "like": "ILIKE",
+    }
 
-		err := rows.Scan(
-			&a.ArticleID,
-			&a.Title,
-			&a.Link,
-			&keywordsArr,
-			&creatorArr,
-			&a.Description,
-			&a.Content,
-			&a.PubDate,
-			&a.PubDateTZ,
-			&imageURL,
-			&videoURL,
-			&a.SourceID,
-			&a.SourceName,
-			&a.SourcePriority,
-			&a.SourceURL,
-			&a.SourceIcon,
-			&a.Language,
-			&countryArr,
-			&categoryArr,
-			&a.Sentiment,
-			&a.SentimentStats,
-			&a.AITag,
-			&a.AIRegion,
-			&a.AIOrg,
-			&a.AISummary,
-			&a.AIContent,
-			&a.Duplicate,
-		)
+    // Apply filters
+    for _, f := range listQuery.Filters {
+        if f.Field == "" || f.Value == "" {
+            continue
+        }
+        if op, ok := comparisonMap[strings.ToLower(f.Comparison)]; ok {
+            if op == "ILIKE" {
+                whereParts = append(whereParts, fmt.Sprintf("%s %s $%d", f.Field, op, argIndex))
+                args = append(args, "%"+f.Value+"%")
+            } else {
+                whereParts = append(whereParts, fmt.Sprintf("%s %s $%d", f.Field, op, argIndex))
+                args = append(args, f.Value)
+            }
+            argIndex++
+        }
+    }
 
-		if err != nil {
-			return nil, err
-		}
+    if len(whereParts) > 0 {
+        baseQuery += " WHERE " + strings.Join(whereParts, " AND ")
+    }
 
-		// Assign to struct fields
-		a.ImageURL = fromNull(imageURL)
-		a.VideoURL = fromNull(videoURL)
-		a.Keywords = []string(keywordsArr)
-		a.Creator = []string(creatorArr)
-		a.Country = []string(countryArr)
-		a.Category = []string(categoryArr)
+    // Apply ordering
+    if listQuery.OrderBy != "" {
+        // ⚠️ sanitize allowed columns if needed to prevent SQL injection
+        baseQuery += " ORDER BY " + listQuery.OrderBy
+    }
 
-		articles = append(articles, &a)
-	}
-	fmt.Println("SIZE", len(articles))
-	for _, article := range articles {
-		fmt.Println("ARTIICLE_ID", article.ArticleID)
-	}
-	return &utils.ListResult[*models.Article]{Items: articles}, nil
+    // Pagination
+    limit := listQuery.Size
+    if limit <= 0 {
+        limit = 10
+    }
+    offset := (listQuery.Page - 1) * limit
+    if offset < 0 {
+        offset = 0
+    }
+
+    baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+
+    // ---- Execute SQL ----
+    rows, err := p.gorm.DB.Query(baseQuery, args...)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var articles []*models.Article
+    for rows.Next() {
+        var a models.Article
+        var (
+            imageURL, videoURL sql.NullString
+            keywordsArr        pq.StringArray
+            creatorArr         pq.StringArray
+            countryArr         pq.StringArray
+            categoryArr        pq.StringArray
+        )
+
+        err := rows.Scan(
+            &a.ArticleID,
+            &a.Title,
+            &a.Link,
+            &keywordsArr,
+            &creatorArr,
+            &a.Description,
+            &a.Content,
+            &a.PubDate,
+            &a.PubDateTZ,
+            &imageURL,
+            &videoURL,
+            &a.SourceID,
+            &a.SourceName,
+            &a.SourcePriority,
+            &a.SourceURL,
+            &a.SourceIcon,
+            &a.Language,
+            &countryArr,
+            &categoryArr,
+            &a.Sentiment,
+            &a.SentimentStats,
+            &a.AITag,
+            &a.AIRegion,
+            &a.AIOrg,
+            &a.AISummary,
+            &a.AIContent,
+            &a.Duplicate,
+        )
+        if err != nil {
+            return nil, err
+        }
+
+        a.ImageURL = fromNull(imageURL)
+        a.VideoURL = fromNull(videoURL)
+        a.Keywords = []string(keywordsArr)
+        a.Creator = []string(creatorArr)
+        a.Country = []string(countryArr)
+        a.Category = []string(categoryArr)
+
+        articles = append(articles, &a)
+    }
+
+    return &utils.ListResult[*models.Article]{Items: articles}, nil
 }
 func (p *PostgresArticleRepository) CreateArticle(ctx context.Context, article *models.Article) (*models.Article, error) {
 	query := `

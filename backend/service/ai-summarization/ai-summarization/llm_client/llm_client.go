@@ -31,11 +31,7 @@ type geminiAiClient struct {
 
 
 func NewLLMClient(llm_client_config *config.LlmConfig) LLMClient {
-	// return &openaiClient{
-	// 	httpClient: http.DefaultClient,
-	// 	apiKey:     llm_client_config.ApiKey,
-	// 	baseURL:    llm_client_config.BaseURL,
-	// }
+
 	config := genai.ClientConfig{
 		APIKey:  llm_client_config.ApiKey,
 		Backend: genai.BackendGeminiAPI,
@@ -55,7 +51,7 @@ func NewLLMClient(llm_client_config *config.LlmConfig) LLMClient {
 
 func (g *geminiAiClient) GenerateDescription(ctx context.Context, content string) (string, error) {
 	result, err:= g.client.Models.GenerateContent(ctx, "gemini-2.0-flash",
-        genai.Text("Explain how AI works in a few words"),
+        genai.Text(content),
         nil,
     )
     if err != nil {
