@@ -7,10 +7,10 @@
   "rabbitMq": {
     "user": "guest",
     "password": "guest",
-    "host": "localhost",
+    "host": "rabbitmq",
     "port": 5672,
     "exchangeName": "product",
-    "kind" : "topic"
+    "kind": "topic"
   },
   "echo": {
     "port": ":5000",
@@ -34,16 +34,16 @@
     "level": "debug"
   },
   "jaeger": {
-    "server": "http://localhost:14268",
-    "serviceName":"product_service",
+    "server": "http://jaeger:14268",
+    "serviceName": "product_service",
     "tracerName": "product_tracer"
   },
   "gormPostgres": {
     "host": "localhost",
-    "port": 5432,
+    "port": 5555,
     "user": "postgres",
-    "password": "Shishir@123",
-    "dbName": "product_service",
+    "password": "postgres",
+    "dbName": "cool_service",
     "sslMode": false
   }
 }

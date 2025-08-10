@@ -23,12 +23,12 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context, log logger.ILogge
 		return nil, fmt.Errorf("rabbitMQconfig is nil")
 	}
 	
-	connAddr:= fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
+	connAddr:= fmt.Sprintf("amqp://%s:%s@localhost:%d/", cfg.User, cfg.Password, cfg.Port)
 
 	bkoff:= backoff.NewExponentialBackOff()
 	bkoff.MaxElapsedTime= 10 * time.Second
 	maxRetries:=5
-
+	fmt.Println("Connection information: ", connAddr)
 	var conn *amqp.Connection
 	var err error
 	for i:=0; i<maxRetries; i++{
