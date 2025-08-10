@@ -30,6 +30,12 @@ type CreateArticleRequestDto struct {
     Duplicate       bool      `json:"duplicate"`
 }
 
+
+// storage service, ai summarization service , ranking service, crawling  
+// link, <- article , 
+// now if the summary doesnt exist, crawling service, ai summarization service, --> database 
+// and return the result to 
+// the user
 type CreateArticleResponsetDto struct {
 	URL string `json:"url"`
 }

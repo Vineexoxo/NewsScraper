@@ -30,12 +30,15 @@ func Maproute(ctx context.Context, validator *validator.Validate,log logger.ILog
 	// getArticlesHandler is an example handler for the articles endpoint.
 func getArticlesHandler(ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error{
+		fmt.Println("SUPPP NIGGGA")
 		listQuery, err:=utils.GetListQueryFromCtx(c)
-		
+		fmt.Println("SUPPP NIGGGA1")
 		if err!=nil{ return c.JSON(http.StatusBadRequest, err) }
 		getArticlesCommand := commandsv1.NewGetArticles(listQuery)
+		fmt.Println("SUPPP NIGGGA2")
 		
-		result, err := mediatr.Send[*commandsv1.GetArticles, *dtosv1.ResponseArticleDto](ctx, getArticlesCommand)
+		result, err := mediatr.Send[*commandsv1.GetArticles, []*dtosv1.ResponseArticleDto](ctx, getArticlesCommand)
+		fmt.Println("SUPPP NIGGGA3")
 		if err!=nil{ return c.JSON(http.StatusInternalServerError, err) }
 		return c.JSON(http.StatusOK, result)
 	}

@@ -18,6 +18,7 @@ ctx context.Context, cfg *config.Config) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
+			
 			go func() {
 				if err := echoserver.RunHttpServer(ctx, 
 				e, log, cfg.Echo); !errors.Is(err, http.ErrServerClosed) {

@@ -42,7 +42,7 @@ func NewPostgresArticleRepository(log logger.ILogger, cfg *pgsql.PostgresConfig,
 
 func (p *PostgresArticleRepository) GetAllArticles(ctx context.Context, listQuery *utils.ListQuery) (
     *utils.ListResult[*models.Article], error) {
-
+        fmt.Println("NITHEZZ IS A FUCKING NIGGER")
     stats := p.gorm.DB.Stats()
     fmt.Printf(`
     GORM DB Connection Pool Stats:

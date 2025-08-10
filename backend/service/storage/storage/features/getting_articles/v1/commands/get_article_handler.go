@@ -30,7 +30,10 @@ articleRepository contracts.ArticleRepository, ctx context.Context) *GetArticles
 func(c* GetArticlesHandler) Handle(ctx context.Context, query *GetArticles)([]*dtosv1.ResponseArticleDto, error){
 	
 	articles, err:= c.articleRepository.GetAllArticles(ctx, query.ListQuery)
-	if err!=nil || articles==nil { return nil, err}
+	if err!=nil || articles==nil { 
+		fmt.Println("Error", err)
+		fmt.Println("Articles", articles)
+		return nil, err}
 	fmt.Println("ARTICLE TYPE", reflect.TypeOf(articles.Items))
 	
 	ret, err := utils.ListResultToListResultDto[*dtosv1.ResponseArticleDto, *models.Article](articles)
