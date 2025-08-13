@@ -1,3 +1,10 @@
+## First Look 
+
+<img width="1908" height="906" alt="image" src="https://github.com/user-attachments/assets/57dee43b-09c5-452f-90e9-741eaa842684" />
+Put in your URL here
+<img width="509" height="293" alt="image" src="https://github.com/user-attachments/assets/e106a4dd-c542-4c1e-ad43-092867b30da0" />
+
+
 ## Structure of Project
 
 In this project I used [vertical slice architecture](https://jimmybogard.com/vertical-slice-architecture/) and [feature folder structure](http://www.kamilgrzybek.com/design/feature-folders/) to structure my files.
