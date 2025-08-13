@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto";
+
+service ScraperService {
+  // Request a single-page scrape. The job is queued and processed by worker.
+  rpc ScrapePage (ScrapeRequest) returns (ScrapeResponse);
+  // Poll the result by job_id.
+  rpc GetResult (GetResultRequest) returns (GetResultResponse);
+}
+
+message ScrapeRequest {
+  string url = 1;
+  string user_agent = 2;
+}
+enum Status {
+    QUEUED = 0;
+    RUNNING = 1;
+    COMPLETED = 2;
+    FAILED = 3;
+}
+
+message ScrapeResponse {
+  string job_id = 1;
+  Status status = 2; // queued | running | done | failed
+}
+
+message GetResultRequest {
+  string job_id = 1;
+}
+
+message PageData {
+  string url = 1;
+  string title = 2;
+  string text = 3;      // cleaned text
+  string markdown = 4;  // optional markdown
+}
+
+message GetResultResponse {
+  string job_id = 1;
+  Status status = 2;   // queued | running | done | failed
+  string error = 3;
+  PageData page = 4;   // present when done
+}
