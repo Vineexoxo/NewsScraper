@@ -33,7 +33,7 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context, log logger.ILogge
 	var err error
 	for i:=0; i<maxRetries; i++{
 		conn, err= amqp.Dial(connAddr)
-		if err==nil{
+		if err!=nil{
 			log.Errorf("Failed to connect to RabbitMQ: Connection information: %s",  connAddr, ctx)
 			return conn, nil
 		}
