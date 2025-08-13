@@ -33,5 +33,31 @@ services:
       - "14268:14268"     # Collector HTTP (used by OTEL)
       - "14250:14250"     # gRPC
 
+  frontend:
+    build: ./frontend
+    container_name: webscraper-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+
+  backend:
+    build: ./backend
+    container_name: webscraper-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=cool_service
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+
 volumes:
   pgdata:
