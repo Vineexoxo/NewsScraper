@@ -1,0 +1,47 @@
+{
+  "serviceName": "web-scraper_service",
+  "deliveryType": "http",
+  "context": {
+    "timeout": 20
+  },
+
+  "logger": {
+    "level": "debug"
+  },
+
+  "rabbitmq": {
+    "user": "guest",
+    "password": "guest",
+    "host": "localhost",
+    "port": 5672,
+    "exchangeName": "product",
+    "kind": "topic"
+  },
+
+  "grpc": {
+    "port": ":6600",
+    "host": "localhost",
+    "development": true
+  },
+
+  "llmconfig": {
+    "apikey": "AIzaSyAd75EAAm70NXIhrUfp8nJNIZKpSZOBX_U",
+    "baseurl": "https://generativelanguage.googleapis.com"
+  },
+
+  "jaeger": {
+    "server": "http://localhost:14268",
+    "serviceName": "web-scraper_service",
+    "tracerName": "web-scraper_tracer"
+  },
+
+  "jobTTLSeconds": 300,
+
+  "redis": {
+  "host": "localhost",
+  "port": 6379,
+  "password": "",
+  "db": 0
+}
+
+}

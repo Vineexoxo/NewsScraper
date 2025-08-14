@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto;
 
-option go_package = "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto";
+option go_package = ".";
 
 service ScraperService {
   // Request a single-page scrape. The job is queued and processed by worker.
@@ -16,10 +16,11 @@ message ScrapeRequest {
   string user_agent = 2;
 }
 enum Status {
-    QUEUED = 0;
+    UNDEFINED = 0;
     RUNNING = 1;
     COMPLETED = 2;
     FAILED = 3;
+    QUEUED = 4;
 }
 
 message ScrapeResponse {

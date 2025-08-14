@@ -24,25 +24,28 @@ const (
 type Status int32
 
 const (
-	Status_QUEUED    Status = 0
+	Status_UNDEFINED Status = 0
 	Status_RUNNING   Status = 1
 	Status_COMPLETED Status = 2
 	Status_FAILED    Status = 3
+	Status_QUEUED    Status = 4
 )
 
 // Enum value maps for Status.
 var (
 	Status_name = map[int32]string{
-		0: "QUEUED",
+		0: "UNDEFINED",
 		1: "RUNNING",
 		2: "COMPLETED",
 		3: "FAILED",
+		4: "QUEUED",
 	}
 	Status_value = map[string]int32{
-		"QUEUED":    0,
+		"UNDEFINED": 0,
 		"RUNNING":   1,
 		"COMPLETED": 2,
 		"FAILED":    3,
+		"QUEUED":    4,
 	}
 )
 
@@ -174,7 +177,7 @@ func (x *ScrapeResponse) GetStatus() Status {
 	if x != nil {
 		return x.Status
 	}
-	return Status_QUEUED
+	return Status_UNDEFINED
 }
 
 type GetResultRequest struct {
@@ -340,7 +343,7 @@ func (x *GetResultResponse) GetStatus() Status {
 	if x != nil {
 		return x.Status
 	}
-	return Status_QUEUED
+	return Status_UNDEFINED
 }
 
 func (x *GetResultResponse) GetError() string {
@@ -380,14 +383,15 @@ const file_web_scraper_proto_rawDesc = "" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12%\n" +
 	"\x06status\x18\x02 \x01(\x0e2\r.proto.StatusR\x06status\x12\x14\n" +
 	"\x05error\x18\x03 \x01(\tR\x05error\x12#\n" +
-	"\x04page\x18\x04 \x01(\v2\x0f.proto.PageDataR\x04page*<\n" +
-	"\x06Status\x12\n" +
-	"\n" +
-	"\x06QUEUED\x10\x00\x12\v\n" +
+	"\x04page\x18\x04 \x01(\v2\x0f.proto.PageDataR\x04page*K\n" +
+	"\x06Status\x12\r\n" +
+	"\tUNDEFINED\x10\x00\x12\v\n" +
 	"\aRUNNING\x10\x01\x12\r\n" +
 	"\tCOMPLETED\x10\x02\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x032\x8b\x01\n" +
+	"\x06FAILED\x10\x03\x12\n" +
+	"\n" +
+	"\x06QUEUED\x10\x042\x8b\x01\n" +
 	"\x0eScraperService\x129\n" +
 	"\n" +
 	"ScrapePage\x12\x14.proto.ScrapeRequest\x1a\x15.proto.ScrapeResponse\x12>\n" +
