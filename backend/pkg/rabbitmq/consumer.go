@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"runtime"
-	"strings"
+	// "runtime"
+	// "strings"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -14,7 +14,7 @@ import (
 	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/shishir54234/NewsScraper/backend/pkg/otel"
 	"github.com/streadway/amqp"
-	"go.opentelemetry.io/otel/attribute"
+	// "go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -37,8 +37,17 @@ type Consumer[T any] struct {
 
 func (c Consumer[T]) ConsumeMessage(msg interface{}, dependencies T) error {
 
-	strName := strings.Split(runtime.FuncForPC(reflect.ValueOf(c.handler).Pointer()).Name(), ".")
-	var consumerHandlerName = strName[len(strName)-1]
+	if c.conn == nil {
+		c.log.Error("RabbitMQ connection is nil. Cannot consume messages")
+		return fmt.Errorf("nil RabbitMQ connection")
+	}
+	if c.handler == nil {
+		c.log.Error("Consumer handler is nil. Cannot process messages")
+		return fmt.Errorf("nil consumer handler")
+	}
+	
+	// strName := strings.Split(runtime.FuncForPC(reflect.ValueOf(c.handler).Pointer()).Name(), ".")
+	// var consumerHandlerName = strName[len(strName)-1]
 
 	ch, err := c.conn.Channel()
 	if err != nil {
@@ -134,7 +143,7 @@ func (c Consumer[T]) ConsumeMessage(msg interface{}, dependencies T) error {
 
 					consumedMessages = append(consumedMessages, snakeTypeName)
 
-					_, span := c.jaegerTracer.Start(c.ctx, consumerHandlerName)
+					// _, span := c.jaegerTracer.Start(c.ctx, consumerHandlerName)
 
 					h, err := jsoniter.Marshal(delivery.Headers)
 
@@ -142,19 +151,19 @@ func (c Consumer[T]) ConsumeMessage(msg interface{}, dependencies T) error {
 						c.log.Errorf("Error in marshalling headers in consumer: %v", string(h))
 					}
 
-					span.SetAttributes(attribute.Key("message-id").String(delivery.MessageId))
-					span.SetAttributes(attribute.Key("correlation-id").String(delivery.CorrelationId))
-					span.SetAttributes(attribute.Key("queue").String(q.Name))
-					span.SetAttributes(attribute.Key("exchange").String(delivery.Exchange))
-					span.SetAttributes(attribute.Key("routing-key").String(delivery.RoutingKey))
-					span.SetAttributes(attribute.Key("ack").Bool(true))
-					span.SetAttributes(attribute.Key("timestamp").String(delivery.Timestamp.String()))
-					span.SetAttributes(attribute.Key("body").String(string(delivery.Body)))
-					span.SetAttributes(attribute.Key("headers").String(string(h)))
+					// span.SetAttributes(attribute.Key("message-id").String(delivery.MessageId))
+					// span.SetAttributes(attribute.Key("correlation-id").String(delivery.CorrelationId))
+					// span.SetAttributes(attribute.Key("queue").String(q.Name))
+					// span.SetAttributes(attribute.Key("exchange").String(delivery.Exchange))
+					// span.SetAttributes(attribute.Key("routing-key").String(delivery.RoutingKey))
+					// span.SetAttributes(attribute.Key("ack").Bool(true))
+					// span.SetAttributes(attribute.Key("timestamp").String(delivery.Timestamp.String()))
+					// span.SetAttributes(attribute.Key("body").String(string(delivery.Body)))
+					// span.SetAttributes(attribute.Key("headers").String(string(h)))
 
 					// Cannot use defer inside a for loop
 					time.Sleep(1 * time.Millisecond)
-					span.End()
+					// span.End()
 
 					err = delivery.Ack(false)
 					if err != nil {

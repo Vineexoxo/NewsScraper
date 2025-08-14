@@ -44,7 +44,6 @@ func NewScraperServer(
 
 // ScrapePage grpc ingests the request, publishes a message to RabbitMQ, and returns a job ID
 // The job ID can be used to track the status of the scraping job
-// The job status is stored in Redis with a TTL
 func (s *ScraperServer) ScrapePage(ctx context.Context, req *pb.ScrapeRequest) (*pb.ScrapeResponse, error) {
 	if req.GetUrl() == ""  {
 		return nil, status.Error(codes.InvalidArgument, "invalid url")

@@ -10,6 +10,7 @@ import (
 	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
 	"github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/configurations"
 	"github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/server"
+	worker "github.com/shishir54234/NewsScraper/backend/service/web-scraper/worker/server"
 	"go.uber.org/fx"
 )
 
@@ -35,6 +36,7 @@ func main() {
 			),
 			// Run the servers
 			fx.Invoke(server.RunServers),
+			fx.Invoke(worker.RunWorker),
 		),
 	).Run()
 }
