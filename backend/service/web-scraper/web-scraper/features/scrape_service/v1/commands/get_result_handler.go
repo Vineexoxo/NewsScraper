@@ -11,6 +11,8 @@ import (
 	pb "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto"
 )
 
+// GetResult retrieves the status and result of a scraping job by job ID
+// It checks the job status in Redis and returns the appropriate response
 func (s *ScraperServer) GetResult(ctx context.Context, req *pb.GetResultRequest) (*pb.GetResultResponse, error) {
 	if req.GetJobId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "missing job_id")
