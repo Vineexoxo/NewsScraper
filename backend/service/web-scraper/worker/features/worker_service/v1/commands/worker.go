@@ -18,6 +18,11 @@ import (
 	"strings"
 )
 
+const (
+	MaxTextLength = 1000
+	Overlap       = 0
+)
+
 // WorkerDependencies holds shared services for the worker
 type WorkerDependencies struct {
 	Redis         *database.RedisDB
@@ -145,8 +150,8 @@ func (w *WorkerDependencies) ScrapeJobHandler(queue string, delivery amqp.Delive
 	})
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		html, _ := e.DOM.Html()
-		chunks := ExtractCleanTextFromHTML(html, 1000, 0) // returns []string
-		result.Page.Text = strings.Join(chunks, "\n\n")   // join chunks as one string
+		chunks := ExtractCleanTextFromHTML(html, MaxTextLength, Overlap) // returns []string
+		result.Page.Text = strings.Join(chunks, "\n\n")                  // join chunks as one string
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
