@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  article_postgres:
     image: postgres:14
     container_name: postgres
     ports:
@@ -14,7 +14,7 @@ services:
       - ./db-init:/docker-entrypoint-initdb.d
     
 
-  rabbitmq:
+  article_rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
@@ -24,7 +24,7 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
-  jaeger:
+  article_jaeger:
     image: jaegertracing/all-in-one:1.57
     container_name: jaeger
     ports:
@@ -33,7 +33,7 @@ services:
       - "14268:14268"     # Collector HTTP (used by OTEL)
       - "14250:14250"     # gRPC
 
-  redis:
+  article_redis:
     image: redis:7
     container_name: redis
     ports:
@@ -42,31 +42,6 @@ services:
       - redis_data:/data
     command: ["redis-server", "--appendonly", "yes"]
 
-  frontend:
-    build: ./frontend
-    container_name: webscraper-frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080
-
-  backend:
-    build: ./backend
-    container_name: webscraper-backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - rabbitmq
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=cool_service
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
 
 volumes:
   pgdata:

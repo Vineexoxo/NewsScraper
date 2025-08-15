@@ -259,16 +259,67 @@ func (p *PostgresArticleRepository) SearchArticles(ctx context.Context, searchTe
 }
 
 
-func (p *PostgresArticleRepository) GetArticleById(ctx context.Context, uuid uuid.UUID) (*models.Article, error) {
+func (p *PostgresArticleRepository) GetArticleByUrl(ctx context.Context, 
+url string) (*models.Article, error) {
+    baseQuery := "SELECT * FROM articles where link = $1"
+    rows, err := p.gorm.DB.Query(baseQuery, url)
+    if err != nil {
+        return nil, err
+    }
+    var article *models.Article = nil
+    for rows.Next() {
+        var a models.Article
+        var (
+            imageURL, videoURL sql.NullString
+            keywordsArr        pq.StringArray
+            creatorArr         pq.StringArray
+            countryArr         pq.StringArray
+            categoryArr        pq.StringArray
+        )
 
-	// var article models.Article
+        err := rows.Scan(
+            &a.ArticleID,
+            &a.Title,
+            &a.Link,
+            &keywordsArr,
+            &creatorArr,
+            &a.Description,
+            &a.Content,
+            &a.PubDate,
+            &a.PubDateTZ,
+            &imageURL,
+            &videoURL,
+            &a.SourceID,
+            &a.SourceName,
+            &a.SourcePriority,
+            &a.SourceURL,
+            &a.SourceIcon,
+            &a.Language,
+            &countryArr,
+            &categoryArr,
+            &a.Sentiment,
+            &a.SentimentStats,
+            &a.AITag,
+            &a.AIRegion,
+            &a.AIOrg,
+            &a.AISummary,
+            &a.AIContent,
+            &a.Duplicate,
+        )
+        if err != nil {
+            return nil, err
+        }
 
-	// if err := p.gorm.First(article, uuid).Error; err != nil {
-	// 	return nil, errors.Wrap(err, fmt.Sprintf("can't find the article with id %s into the database.", uuid))
-	// }
+        a.ImageURL = fromNull(imageURL)
+        a.VideoURL = fromNull(videoURL)
+        a.Keywords = []string(keywordsArr)
+        a.Creator = []string(creatorArr)
+        a.Country = []string(countryArr)
+        a.Category = []string(categoryArr)
 
-	// return article, nil
-	return nil, nil
+        article = &a
+    }
+	return article, nil
 }
 
 

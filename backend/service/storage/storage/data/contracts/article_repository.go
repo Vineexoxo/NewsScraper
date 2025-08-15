@@ -11,5 +11,5 @@ import (
 type ArticleRepository interface {
 	GetAllArticles(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Article], error)
 	CreateArticle(ctx context.Context, article *models.Article) (*models.Article, error)
-	
+	GetArticleByUrl(ctx context.Context, url string) (*models.Article, error)
 }

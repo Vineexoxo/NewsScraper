@@ -11,7 +11,6 @@ import (
 	"github.com/shishir54234/NewsScraper/backend/pkg/utils"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/data/contracts"
 	dtosv1 "github.com/shishir54234/NewsScraper/backend/service/storage/storage/features/getting_articles/v1/dtos"
-	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/grpc_client/web_scraper_client"
 )
 
 type GetArticlesHandler struct {
@@ -19,7 +18,6 @@ type GetArticlesHandler struct {
 	rabbitmqPublisher *rabbitmq.IPublisher
 	articleRepository contracts.ArticleRepository 
 	ctx context.Context
-	web_scraper_client *web_scraper_client.WebScraperClient
 }
 
 
@@ -35,12 +33,8 @@ func(c* GetArticlesHandler) Handle(ctx context.Context, query *GetArticles)([]*d
 	articles, err:= c.articleRepository.GetAllArticles(ctx, query.ListQuery)
 	
 	
-	
 	if err!=nil { return nil, err}
-	if len(articles.Items)==0 { 
-
-
-	}
+	
 	
 	
 	

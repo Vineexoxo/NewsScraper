@@ -13,8 +13,9 @@ import (
 	"github.com/shishir54234/NewsScraper/backend/service/storage/config"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/configurations"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/data/repositories"
+	grpcclient "github.com/shishir54234/NewsScraper/backend/service/storage/storage/grpc_client"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/mappings"
-
+	
 	// "github.com/shishir54234/NewsScraper/backend/pkg/models"
 	"github.com/shishir54234/NewsScraper/backend/service/storage/storage/server"
 	"go.uber.org/fx"
@@ -36,6 +37,7 @@ func main() {
 				gormpgsql.NewPostgresDB,
 				otel.TracerProvider,
 				httpclient.New,
+				grpcclient.NewWebScraperClient("localhost:50051"),
 				repositories.NewPostgresArticleRepository,
 				rabbitmq.NewRabbitMQConn,
 				grpc.NewGrpcClient,
