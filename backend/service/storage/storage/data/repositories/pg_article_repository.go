@@ -184,6 +184,13 @@ func (p *PostgresArticleRepository) GetAllArticles(ctx context.Context, listQuer
         articles = append(articles, &a)
     }
 
+
+
+
+
+
+
+
     return &utils.ListResult[*models.Article]{Items: articles}, nil
 }
 func (p *PostgresArticleRepository) CreateArticle(ctx context.Context, article *models.Article) (*models.Article, error) {

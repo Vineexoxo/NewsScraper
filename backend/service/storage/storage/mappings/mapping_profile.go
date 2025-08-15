@@ -32,8 +32,8 @@ func ConfigureMappings() error {
 	// if err != nil {
 	// 	return err
 	// }
-	err:= mapper.CreateCustomMap[*models.Article, *dtos.ResponseArticleDto]( func(a *models.Article) *dtos.ResponseArticleDto {
-		fmt.Println("link", a.Link)
+	err:= mapper.CreateCustomMap[*models.Article, *dtos.ResponseArticleDto]( 
+		func(a *models.Article) *dtos.ResponseArticleDto {
 		
 		return &dtos.ResponseArticleDto{URL: a.Link, DESC: a.Description, Date: a.PubDate}
 	})
