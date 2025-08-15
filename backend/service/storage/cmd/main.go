@@ -37,7 +37,7 @@ func main() {
 				gormpgsql.NewPostgresDB,
 				otel.TracerProvider,
 				httpclient.New,
-				grpcclient.NewWebScraperClient("localhost:50051"),
+				func () grpcclient.WebScraperClient { return *grpcclient.NewWebScraperClient("localhost:6600") },
 				repositories.NewPostgresArticleRepository,
 				rabbitmq.NewRabbitMQConn,
 				grpc.NewGrpcClient,
