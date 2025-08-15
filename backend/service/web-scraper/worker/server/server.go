@@ -7,11 +7,12 @@ import (
 	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
 	"github.com/shishir54234/NewsScraper/backend/service/web-scraper/worker/features/worker_service/v1/commands"
+	"github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/configurations"
 	"github.com/streadway/amqp"
 	"go.uber.org/fx"
 )
 
-// RunWorker integrates the worker into FX lifecycle
+// RunWorker integrates the worker into the FX lifecycle
 func RunWorker(
 	lc fx.Lifecycle,
 	log logger.ILogger,
@@ -19,11 +20,10 @@ func RunWorker(
 	rabbitCfg *rabbitmq.RabbitMQConfig,
 	amqpConn *amqp.Connection,
 	redis *database.RedisDB,
+	cfg *configurations.Config,
 ) {
-	deps := commands.WorkerDependencies{
-		Redis: redis,
-		Log:   log,
-	}
+	// Use constructor to create WorkerDependencies
+	deps := commands.NewWorkerDependencies(redis, log, cfg.JobTTLSeconds)
 
 	lc.Append(fx.Hook{
 		OnStart: func(startCtx context.Context) error {

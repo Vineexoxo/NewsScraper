@@ -5,75 +5,92 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/shishir54234/NewsScraper/backend/pkg/database"
 	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/shishir54234/NewsScraper/backend/pkg/models"
-	pb "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto"
 	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
+	pb "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto"
 	"github.com/streadway/amqp"
 )
 
-// WorkerDependencies holds shared services
+// WorkerDependencies holds shared services for the worker
 type WorkerDependencies struct {
-	Redis *database.RedisDB
-	Log   logger.ILogger
+	Redis         *database.RedisDB
+	Log           logger.ILogger
+	ResultTTLSecs int // TTL in seconds
+}
+
+// NewWorkerDependencies is like a constructor for WorkerDependencies
+func NewWorkerDependencies(redis *database.RedisDB, log logger.ILogger, ttlSecs int) *WorkerDependencies {
+	return &WorkerDependencies{
+		Redis:         redis,
+		Log:           log,
+		ResultTTLSecs: ttlSecs,
+	}
 }
 
 // ScrapeJobHandler handles a single RabbitMQ message
-func ScrapeJobHandler(queue string, delivery amqp.Delivery, deps WorkerDependencies) error {
+func (w *WorkerDependencies) ScrapeJobHandler(queue string, delivery amqp.Delivery) error {
 	var msg models.ScrapeJobMessage
 	if err := jsoniter.Unmarshal(delivery.Body, &msg); err != nil {
-		deps.Log.Errorf("Failed to unmarshal message: %v", err)
+		w.Log.Errorf("Failed to unmarshal message: %v", err)
 		return err
 	}
 
 	jobID := msg.JobID
 	ctx := context.Background()
-	ttl := 1 * time.Hour
+	ttl := time.Duration(w.ResultTTLSecs) * time.Second
 
-	if err := deps.Redis.SetJobStatus(ctx, jobID, "RUNNING", ttl); err != nil {
-		deps.Log.Errorf("Failed to set job status RUNNING: %v", err)
+	// Initialize result with RUNNING status
+	result := &pb.GetResultResponse{
+		Status: pb.Status_RUNNING,
+		Page: &pb.PageData{
+			Url: msg.URL,
+		},
+	}
+
+	if err := w.Redis.SetJobResult(ctx, jobID, msg.URL, result, ttl); err != nil {
+		w.Log.Errorf("Failed to set initial job result: %v", err)
 		return err
 	}
 
+	// Create Colly collector
 	c := colly.NewCollector(colly.UserAgent(msg.UserAgent), colly.MaxDepth(1))
-	var pageData pb.PageData
-	pageData.Url = msg.URL
-
-	c.OnHTML("title", func(e *colly.HTMLElement) { pageData.Title = e.Text })
-	c.OnHTML("body", func(e *colly.HTMLElement) { pageData.Text = e.Text })
+	c.OnHTML("title", func(e *colly.HTMLElement) { result.Page.Title = e.Text })
+	c.OnHTML("body", func(e *colly.HTMLElement) { result.Page.Text = e.Text })
 	c.OnError(func(r *colly.Response, err error) {
-		deps.Log.Errorf("Failed to scrape URL %s: %v", msg.URL, err)
-		_ = deps.Redis.SetJobStatus(ctx, jobID, "FAILED", ttl)
+		w.Log.Errorf("Failed to scrape URL %s: %v", msg.URL, err)
+		result.Status = pb.Status_FAILED
+		_ = w.Redis.SetJobResult(ctx, jobID, msg.URL, result, ttl)
 	})
 
+	// Visit the URL
 	if err := c.Visit(msg.URL); err != nil {
-		deps.Log.Errorf("Failed to visit URL %s: %v", msg.URL, err)
-		_ = deps.Redis.SetJobStatus(ctx, jobID, "FAILED", ttl)
+		w.Log.Errorf("Failed to visit URL %s: %v", msg.URL, err)
+		result.Status = pb.Status_FAILED
+		_ = w.Redis.SetJobResult(ctx, jobID, msg.URL, result, ttl)
 		return err
 	}
 
-	if err := deps.Redis.SetJobResult(ctx, jobID, pageData, ttl); err != nil {
-		deps.Log.Errorf("Failed to set job result: %v", err)
+	// Mark job as COMPLETED
+	result.Status = pb.Status_COMPLETED
+	if err := w.Redis.SetJobResult(ctx, jobID, msg.URL, result, ttl); err != nil {
+		w.Log.Errorf("Failed to set job result: %v", err)
 		return err
 	}
 
-	if err := deps.Redis.SetJobStatus(ctx, jobID, "COMPLETED", ttl); err != nil {
-		deps.Log.Errorf("Failed to set job status COMPLETED: %v", err)
-		return err
-	}
-
-	deps.Log.Infof("Successfully completed scraping job: %s", jobID)
+	w.Log.Infof("Successfully completed scraping job: %s", jobID)
 	return nil
 }
 
 // StartWorker sets up the RabbitMQ consumer and starts processing
-func StartWorker(ctx context.Context, rabbitCfg *rabbitmq.RabbitMQConfig, amqpConn *amqp.Connection, deps WorkerDependencies) error {
-	handler := func(queue string, msg amqp.Delivery, deps WorkerDependencies) error {
-		return ScrapeJobHandler(queue, msg, deps)
+func StartWorker(ctx context.Context, rabbitCfg *rabbitmq.RabbitMQConfig, amqpConn *amqp.Connection, w *WorkerDependencies) error {
+	handler := func(queue string, msg amqp.Delivery, deps interface{}) error {
+		// Call the method on WorkerDependencies
+		return w.ScrapeJobHandler(queue, msg)
 	}
 
-	consumer := rabbitmq.NewConsumer(ctx, rabbitCfg, amqpConn, deps.Log,nil, handler)
-	return consumer.ConsumeMessage(models.ScrapeJobMessage{}, deps)
+	consumer := rabbitmq.NewConsumer(ctx, rabbitCfg, amqpConn, w.Log, nil, handler)
+	return consumer.ConsumeMessage(models.ScrapeJobMessage{}, w)
 }
