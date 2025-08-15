@@ -2,11 +2,13 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"google.golang.org/protobuf/proto"
+
+	pb "github.com/shishir54234/NewsScraper/backend/service/web-scraper/web-scraper/grpc_server/proto"
 )
 
 type RedisConfig struct {
@@ -57,31 +59,59 @@ func (r *RedisDB) Health() error {
 	return r.Ping(ctx).Err()
 }
 
-// ---- Job-related helpers ----
+// --- Redis key helpers ---
+func jobDataKey(jobID string) string { return fmt.Sprintf("job:%s:data", jobID) }
+func jobURLKey(url string) string    { return fmt.Sprintf("url:%s", url) }
 
-func jobStatusKey(jobID string) string { return fmt.Sprintf("job:%s:status", jobID) }
-func jobDataKey(jobID string) string   { return fmt.Sprintf("job:%s:data", jobID) }
-
-func (r *RedisDB) SetJobStatus(ctx context.Context, jobID, status string, ttl time.Duration) error {
-	return r.Set(ctx, jobStatusKey(jobID), status, ttl).Err()
-}
-
-func (r *RedisDB) GetJobStatus(ctx context.Context, jobID string) (string, error) {
-	return r.Get(ctx, jobStatusKey(jobID)).Result()
-}
-
-func (r *RedisDB) SetJobResult(ctx context.Context, jobID string, data interface{}, ttl time.Duration) error {
-	b, err := json.Marshal(data)
+// --- Store JobResult ---
+func (r *RedisDB) SetJobResult(ctx context.Context, jobID, url string, result *pb.GetResultResponse, ttl time.Duration) error {
+	data, err := proto.Marshal(result)
 	if err != nil {
 		return err
 	}
-	return r.Set(ctx, jobDataKey(jobID), b, ttl).Err()
+
+	pipe := r.TxPipeline()
+	pipe.Set(ctx, jobDataKey(jobID), data, ttl)
+	// Store URL → jobID mapping
+	pipe.Set(ctx, jobURLKey(url), jobID, ttl)
+
+	_, err = pipe.Exec(ctx)
+	return err
 }
 
-func (r *RedisDB) GetJobResult(ctx context.Context, jobID string, out interface{}) error {
-	s, err := r.Get(ctx, jobDataKey(jobID)).Result()
+// Retrieve JobResult
+func (r *RedisDB) GetJobResult(ctx context.Context, jobID string) (*pb.GetResultResponse, error) {
+	bytes, err := r.Get(ctx, jobDataKey(jobID)).Bytes()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return json.Unmarshal([]byte(s), out)
+	var result pb.GetResultResponse
+	if err := proto.Unmarshal(bytes, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (r *RedisDB) GetJobIDByURL(ctx context.Context, url string) (string, error) {
+	return r.Get(ctx, jobURLKey(url)).Result()
+}
+
+// Query by URL: returns PageData & Status
+// This allows quick access to the scraping result by URL
+func (r *RedisDB) GetResultByURL(ctx context.Context, url string) (*pb.PageData, pb.Status, error) {
+	jobID, err := r.GetJobIDByURL(ctx, url)
+	if err == redis.Nil {
+		// No mapping exists
+		return nil, pb.Status_UNDEFINED, nil
+	}
+	if err != nil {
+		return nil, pb.Status_UNDEFINED, err
+	}
+
+	result, err := r.GetJobResult(ctx, jobID)
+	if err != nil {
+		return nil, pb.Status_UNDEFINED, err
+	}
+
+	return result.Page, result.Status, nil
 }

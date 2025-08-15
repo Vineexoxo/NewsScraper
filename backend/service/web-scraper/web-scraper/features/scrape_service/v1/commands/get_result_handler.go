@@ -14,40 +14,29 @@ import (
 // GetResult retrieves the status and result of a scraping job by job ID
 // It checks the job status in Redis and returns the appropriate response
 func (s *ScraperServer) GetResult(ctx context.Context, req *pb.GetResultRequest) (*pb.GetResultResponse, error) {
+	s.log.Infof("Received GetResult request: JobID=%s", req.GetJobId())
+
 	if req.GetJobId() == "" {
+		s.log.Infof("GetResult request missing job_id")
 		return nil, status.Error(codes.InvalidArgument, "missing job_id")
 	}
 
-	statusStr, err := s.redis.GetJobStatus(ctx, req.GetJobId())
+	result, err := s.redis.GetJobResult(ctx, req.GetJobId())
 	if err != nil {
+		s.log.Errorf("Failed to get job result from Redis for JobID=%s: %v", req.GetJobId(), err)
 		return nil, status.Errorf(codes.NotFound, "job not found")
 	}
 
-	resp := &pb.GetResultResponse{JobId: req.GetJobId()}
+	s.log.Infof("Successfully retrieved result for JobID=%s, Status=%s", req.GetJobId(), result.GetStatus().String())
 
-	switch statusStr {
-	case "QUEUED":
-		resp.Status = pb.Status_QUEUED
-	case "RUNNING":
-		resp.Status = pb.Status_RUNNING
-	case "COMPLETED":
-		resp.Status = pb.Status_COMPLETED
-		var page pb.PageData
-		if err := s.redis.GetJobResult(ctx, req.GetJobId(), &page); err == nil {
-			resp.Page = &page
-		}
-	case "FAILED":
-		resp.Status = pb.Status_FAILED
-	default:
-		resp.Status = pb.Status_FAILED
-		resp.Error = "unknown status"
-	}
-
-	// (optional) annotate trace with last snapshot
+	// Optional: annotate trace
 	if span := trace.SpanFromContext(ctx); span != nil {
-		if b, err := jsoniter.Marshal(resp); err == nil {
-			_ = b // attach if you want
+		if b, err := jsoniter.Marshal(result); err == nil {
+			_ = b // could attach to span if desired
+		} else {
+			s.log.Infof("Failed to marshal result for tracing: %v", err)
 		}
 	}
-	return resp, nil
+
+	return result, nil
 }
