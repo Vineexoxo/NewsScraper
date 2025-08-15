@@ -6,7 +6,9 @@ Put in your URL here
 
 
 ## Structure of Project
-
+<div align="center">
+<img width="1280" height="635" alt="image" src="https://github.com/user-attachments/assets/f7e0c2ae-d9b5-4c69-a9a6-9e13bacbafee" />
+</div>
 In this project I used [vertical slice architecture](https://jimmybogard.com/vertical-slice-architecture/) and [feature folder structure](http://www.kamilgrzybek.com/design/feature-folders/) to structure my files.
 
 I used [RabbitMQ](https://github.com/rabbitmq) as my MessageBroker for async communication between microservices using the eventual consistency mechanism. 
