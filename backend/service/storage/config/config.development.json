@@ -33,6 +33,9 @@
   "logger": {
     "level": "debug"
   },
+  "configLLMClient": {
+    "ConnAddr": "localhost:6601"
+  },
   "jaeger": {
     "server": "http://jaeger:14268",
     "serviceName": "product_service",

@@ -1,4 +1,4 @@
-
+import { articlePage } from './scenes/article_page/page'
 import NewspaperLikeSite from './scenes/landing_page/landing_page'
 import Header from './components/header/header'
 import './App.css'
@@ -8,8 +8,8 @@ function App() {
     <>
       <Header/>
       <div className="m-20">
-        <NewspaperLikeSite/>      
-
+        {/* <NewspaperLikeSite/>       */}
+        <articlePage title="article page" date="22/01/2004" description= link={} keywords={}/>
       </div>
     </>
   )

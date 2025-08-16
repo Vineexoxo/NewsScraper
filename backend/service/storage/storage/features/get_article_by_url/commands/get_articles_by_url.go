@@ -20,14 +20,17 @@ type GetArticlesByUrlHandler struct {
 	articleRepository contracts.ArticleRepository 
 	ctx               context.Context
 	web_scraper_client grpcclient.WebScraperClient
+	llm_client grpcclient.LLMClient
 }
 
 
 func NewGetArticlesByUrlHandler (log logger.ILogger, rabbitmqPublisher *rabbitmq.IPublisher, 
 articleRepository contracts.ArticleRepository, web_scraper_client grpcclient.WebScraperClient, 
+llm_client grpcclient.LLMClient,
 ctx context.Context) *GetArticlesByUrlHandler {
 	return &GetArticlesByUrlHandler{log: log, rabbitmqPublisher: *rabbitmqPublisher, 
 	web_scraper_client: web_scraper_client,
+	llm_client: llm_client,
 	articleRepository: articleRepository, ctx: ctx}
 }
 
@@ -48,12 +51,19 @@ func (q *GetArticlesByUrlHandler) Handle(ctx context.Context, request dtos.Reque
 			fmt.Println("some Problem in getting article by url", err)
 			return nil, err
 		}
+		// now we call the llm client 
+		summary, err:=q.llm_client.GenerateDescription(q.ctx, page.Text)
+		if err!=nil{
+			fmt.Println("some Problem in getting article by url", err)
+			return nil, err
+		}
+
 		fmt.Println("PAGE", page)
 		res, err = q.articleRepository.CreateArticle(q.ctx, &models.Article{
 			ArticleID:  uuid.New().String(), // generate unique ID
 			Title:      page.Title,
 			Link:       page.Url,
-			Content:    page.Text,
+			Content:    summary,
 			PubDate:    time.Now().Format(time.RFC3339),
 			PubDateTZ:  "UTC",
 			Language:   "en",       // default or detect

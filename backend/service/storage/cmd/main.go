@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-playground/validator"
 	gormpgsql "github.com/shishir54234/NewsScraper/backend/pkg/database"
-	"github.com/shishir54234/NewsScraper/backend/pkg/grpc"
+	// "github.com/shishir54234/NewsScraper/backend/pkg/grpc"
 	"github.com/shishir54234/NewsScraper/backend/pkg/http"
 	echoserver "github.com/shishir54234/NewsScraper/backend/pkg/http/echo/server"
 	httpclient "github.com/shishir54234/NewsScraper/backend/pkg/httpclient"
@@ -37,10 +37,12 @@ func main() {
 				gormpgsql.NewPostgresDB,
 				otel.TracerProvider,
 				httpclient.New,
-				func () grpcclient.WebScraperClient { return *grpcclient.NewWebScraperClient("localhost:6600") },
+				func () *grpcclient.WebScraperClient { return grpcclient.NewWebScraperClient("localhost:6600") },
+				grpcclient.NewLLMClient,
 				repositories.NewPostgresArticleRepository,
 				rabbitmq.NewRabbitMQConn,
-				grpc.NewGrpcClient,
+			
+				
 				validator.New,
 				rabbitmq.NewPublisher,
 			),

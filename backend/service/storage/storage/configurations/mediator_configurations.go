@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/shishir54234/NewsScraper/backend/pkg/grpc"
 	"github.com/shishir54234/NewsScraper/backend/pkg/logger"
 	"github.com/shishir54234/NewsScraper/backend/pkg/models"
 	"github.com/shishir54234/NewsScraper/backend/pkg/rabbitmq"
@@ -21,8 +20,9 @@ import (
 
 func ConfigArticlesMediator(log logger.ILogger, rabbitmqPublisher rabbitmq.IPublisher,
 	articleRepository contracts.ArticleRepository,
-	web_scraper_client grpcclient.WebScraperClient,
-	ctx context.Context, grpcClient grpc.GrpcClient) error {
+	web_scraper_client *grpcclient.WebScraperClient,
+	llm_client *grpcclient.LLMClient,
+	ctx context.Context) error {
 
 	// //https://stackoverflow.com/questions/72034479/how-to-implement-generic-interfaces
 	// err := mediatr.RegisterRequestHandler[*creatingarticlev1commands.CreateArticle, *creatingarticlev1dtos.CreateArticleResponseDto](creatingarticlev1commands.NewCreateArticleHandler(log, rabbitmqPublisher, articleRepository, ctx, grpcClient))
@@ -43,7 +43,7 @@ func ConfigArticlesMediator(log logger.ILogger, rabbitmqPublisher rabbitmq.IPubl
 
 	err = mediatr.RegisterRequestHandler[dtosGettingArticlesUrl.RequestArticleDto, *models.Article](
 		gettingArticlesUrl.NewGetArticlesByUrlHandler(log, &rabbitmqPublisher, 
-		articleRepository,web_scraper_client, ctx))
+		articleRepository,*web_scraper_client, *llm_client, ctx))
 	
 
 	if err != nil {
@@ -53,7 +53,7 @@ func ConfigArticlesMediator(log logger.ILogger, rabbitmqPublisher rabbitmq.IPubl
 
 
 	err=mediatr.RegisterRequestHandler[*creating_article.CreateArticle, *creating_article_dto.CreateArticleResponsetDto](
-		creating_article.NewCreateArticleHandler(log, &rabbitmqPublisher, articleRepository, ctx, grpcClient))
+		creating_article.NewCreateArticleHandler(log, &rabbitmqPublisher, articleRepository, ctx))
 	if err!=nil {
 		fmt.Println("Registering a request handler for creating articles didnt work as well as I wanted it to")
 		return err

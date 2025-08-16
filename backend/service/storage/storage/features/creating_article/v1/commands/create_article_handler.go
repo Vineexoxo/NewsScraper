@@ -21,8 +21,8 @@ type createArticleHandler struct {
 	grpcClient grpc.GrpcClient
 }
 
-func NewCreateArticleHandler(log logger.ILogger, rabbitmqPublisher *rabbitmq.IPublisher, articleRepository contracts.ArticleRepository, ctx context.Context, grpcClient grpc.GrpcClient) *createArticleHandler {
-	return &createArticleHandler{log: log, rabbitmqPublisher: *rabbitmqPublisher, articleRepository: articleRepository, ctx: ctx, grpcClient: grpcClient}
+func NewCreateArticleHandler(log logger.ILogger, rabbitmqPublisher *rabbitmq.IPublisher, articleRepository contracts.ArticleRepository, ctx context.Context) *createArticleHandler {
+	return &createArticleHandler{log: log, rabbitmqPublisher: *rabbitmqPublisher, articleRepository: articleRepository, ctx: ctx}
 }
 
 func (c* createArticleHandler) Handle(ctx context.Context, command *CreateArticle) (*dtosv1.CreateArticleResponsetDto, error) {

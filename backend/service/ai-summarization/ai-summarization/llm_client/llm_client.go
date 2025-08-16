@@ -51,7 +51,7 @@ func NewLLMClient(llm_client_config *config.LlmConfig) LLMClient {
 
 func (g *geminiAiClient) GenerateDescription(ctx context.Context, content string) (string, error) {
 	result, err:= g.client.Models.GenerateContent(ctx, "gemini-2.0-flash",
-        genai.Text(content),
+        genai.Text("Summarise this in a easy to understand way but also in sufficient number of words"+content),
         nil,
     )
     if err != nil {
