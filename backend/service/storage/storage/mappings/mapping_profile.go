@@ -35,7 +35,28 @@ func ConfigureMappings() error {
 	err:= mapper.CreateCustomMap[*models.Article, *dtos.ResponseArticleDto]( 
 		func(a *models.Article) *dtos.ResponseArticleDto {
 		
-		return &dtos.ResponseArticleDto{URL: a.Link, DESC: a.Description, Date: a.PubDate}
+		return &dtos.ResponseArticleDto{
+			ArticleID:       a.ArticleID,
+			Title:           a.Title,
+			Link:            a.Link,
+			Keywords:        a.Keywords,
+			Creator:         a.Creator,
+			Description:     a.Description,
+			Content:         a.Content,
+			PubDate:         a.PubDate,
+			PubDateTZ:       a.PubDateTZ,
+			ImageURL:        a.ImageURL,
+			VideoURL:        a.VideoURL,
+			SourceID:        a.SourceID,
+			SourceName:      a.SourceName,
+			SourcePriority:  a.SourcePriority,
+			SourceURL:       a.SourceURL,
+			SourceIcon:      a.SourceIcon,
+			Language:        a.Language,
+			Country:         a.Country,
+			Category:        a.Category,
+			Sentiment:       a.Sentiment,
+		}
 	})
 
 	if err != nil {

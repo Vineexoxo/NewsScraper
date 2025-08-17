@@ -3,6 +3,7 @@ package llm_client
 import (
 	// "bytes"
 	"context"
+	"strings"
 	// "encoding/json"
 	"fmt"
 
@@ -14,7 +15,7 @@ import (
 )
 
 type LLMClient interface {
-	GenerateDescription(ctx context.Context, content string) (string, error)
+	GenerateDescription(ctx context.Context, content string) (string, []string, error)
 }
 
 type openaiClient struct {
@@ -49,15 +50,28 @@ func NewLLMClient(llm_client_config *config.LlmConfig) LLMClient {
 
 }
 
-func (g *geminiAiClient) GenerateDescription(ctx context.Context, content string) (string, error) {
+func (g *geminiAiClient) GenerateDescription(ctx context.Context, content string) (string, []string, error) {
 	result, err:= g.client.Models.GenerateContent(ctx, "gemini-2.0-flash",
-        genai.Text("Summarise this in a easy to understand way but also in sufficient number of words"+content),
+        genai.Text("Summarise this in a easy to understand way but also in sufficient number of words and give it to me in a way that you define it in different lines be seperated by /n "+
+		content),
         nil,
     )
+	if err!=nil{
+		fmt.Println("There is problem in getting summary", err)
+	}
+	keywords, err:= g.client.Models.GenerateContent(ctx, "gemini-2.0-flash",
+		genai.Text("Give me an array of keywords related to this article in a easy to understand way but also in sufficient number of words let the words seperated by a comma, give at maximum 5 keywords  "+
+		result.Text()),
+		nil,
+	)	
+	if err!=nil{
+		fmt.Println("There is problem in getting keywords", err)
+	}
+	res:= strings.Split(keywords.Text(), ",")	
     if err != nil {
-        fmt.Println("Error:", err)
-		return "", err
+        fmt.Println("Error in splitting keywords", err)
+		return "", nil, err
     }
     fmt.Println(result.Text())
-	return result.Text(), nil
+	return result.Text(),res, nil
 }

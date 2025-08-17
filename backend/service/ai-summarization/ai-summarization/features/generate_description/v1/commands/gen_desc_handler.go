@@ -34,13 +34,14 @@ ctx context.Context) *GenerateDescriptionHandler {
 
 func (dh *GenerateDescriptionHandler) GenerateDescription (ctx context.Context, 
 query *descriptionpb.GenerateDescriptionRequest) (*descriptionpb.GenerateDescriptionResponse, error) {
-	result, err:= dh.llmClient.GenerateDescription(ctx, query.Description)
+	result,keywords, err:= dh.llmClient.GenerateDescription(ctx, query.Description)
 	if err!=nil{
 		fmt.Println("The llm client isnt working", err)
 		return nil, err
 	}
 	return &descriptionpb.GenerateDescriptionResponse{
 		Url: query.Url,
+		Keywords: keywords,
 		Description: result,
 	}, err
 }

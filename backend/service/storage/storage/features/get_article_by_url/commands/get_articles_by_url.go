@@ -52,18 +52,19 @@ func (q *GetArticlesByUrlHandler) Handle(ctx context.Context, request dtos.Reque
 			return nil, err
 		}
 		// now we call the llm client 
-		summary, err:=q.llm_client.GenerateDescription(q.ctx, page.Text)
+		summary,keywords, err:=q.llm_client.GenerateDescription(q.ctx, page.Text)
 		if err!=nil{
 			fmt.Println("some Problem in getting article by url", err)
 			return nil, err
 		}
-
 		fmt.Println("PAGE", page)
 		res, err = q.articleRepository.CreateArticle(q.ctx, &models.Article{
 			ArticleID:  uuid.New().String(), // generate unique ID
 			Title:      page.Title,
 			Link:       page.Url,
 			Content:    summary,
+			Keywords:   keywords,
+			Creator:    []string{"GeminiAI"},
 			PubDate:    time.Now().Format(time.RFC3339),
 			PubDateTZ:  "UTC",
 			Language:   "en",       // default or detect

@@ -14,4 +14,5 @@ message GenerateDescriptionRequest {
 message GenerateDescriptionResponse {
   string url = 1;
   string description = 2;
+  repeated string keywords=3;
 }

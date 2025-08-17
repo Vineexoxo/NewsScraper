@@ -77,6 +77,7 @@ type GenerateDescriptionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Keywords      []string               `protobuf:"bytes,3,rep,name=keywords,proto3" json:"keywords,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -125,6 +126,13 @@ func (x *GenerateDescriptionResponse) GetDescription() string {
 	return ""
 }
 
+func (x *GenerateDescriptionResponse) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
 var File_description_proto protoreflect.FileDescriptor
 
 const file_description_proto_rawDesc = "" +
@@ -132,10 +140,11 @@ const file_description_proto_rawDesc = "" +
 	"\x11description.proto\x12\x05proto\"P\n" +
 	"\x1aGenerateDescriptionRequest\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\"Q\n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\"m\n" +
 	"\x1bGenerateDescriptionResponse\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription2r\n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bkeywords\x18\x03 \x03(\tR\bkeywords2r\n" +
 	"\x12DescriptionService\x12\\\n" +
 	"\x13GenerateDescription\x12!.proto.GenerateDescriptionRequest\x1a\".proto.GenerateDescriptionResponseB\x03Z\x01/b\x06proto3"
 

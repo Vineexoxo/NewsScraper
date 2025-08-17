@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	echoserver "github.com/shishir54234/NewsScraper/backend/pkg/http/echo/server"
@@ -15,7 +16,11 @@ import (
 
 func RunServers(lc fx.Lifecycle, log logger.ILogger, e *echo.Echo, 
 ctx context.Context, cfg *config.Config) error {
-
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:5173"}, // your React dev server
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+	}))
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			

@@ -26,11 +26,11 @@ func NewLLMClient(config *config.ConfigLLMClient) *LLMClient {
 		client: client,
 	}
 }
-func (clt *LLMClient) GenerateDescription (ctx context.Context, content string) (string, error) {
+func (clt *LLMClient) GenerateDescription (ctx context.Context, content string) (string, []string, error) {
 	result, err:= clt.client.GenerateDescription(ctx, &descriptionpb.GenerateDescriptionRequest{Description: content})
 	if err!=nil{
 		fmt.Println("The llm client isnt working", err)
-		return "", err
+		return "",nil, err
 	}
-	return result.Description, err
+	return result.Description,result.Keywords, err
 }

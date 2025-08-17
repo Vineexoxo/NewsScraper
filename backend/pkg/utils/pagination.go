@@ -44,12 +44,14 @@ type FilterModel struct {
 	Value      string `query:"value" json:"value"`
 	Comparison string `query:"comparison" json:"comparison"`
 }
-
+type FilterRequest struct{
+	Filters []FilterModel `json:"filters"`
+}
 type ListQuery struct {
 	Size    int            `query:"size" json:"size,omitempty"`
 	Page    int            `query:"page" json:"page,omitempty"`
 	OrderBy string         `query:"orderBy" json:"orderBy,omitempty"`
-	Filters []*FilterModel `query:"filters" json:"filters,omitempty"`
+	Filters []FilterModel `query:"filters" json:"filters,omitempty"`
 }
 
 func NewListQuery(size int, page int) *ListQuery {
@@ -72,36 +74,15 @@ func NewListQueryFromQueryParams(size string, page string) *ListQuery {
 
 func GetListQueryFromCtx(c echo.Context) (*ListQuery, error) {
 	q := &ListQuery{}
-	var page, size, orderBy string
-
-	//https://echo.labstack.com/guide/binding/#fast-binding-with-dedicated-helpers
-	err := echo.QueryParamsBinder(c).
-		CustomFunc("filters", func(values []string) []error {
-			for _, v := range values {
-				if v == "" {
-					continue
-				}
-				f := &FilterModel{}
-				if err := c.Bind(f); err != nil {
-					return []error{err}
-				}
-				q.Filters = append(q.Filters, f)
-			}
-			return nil
-		}).
-		String("size", &size).
-		String("page", &page).
-		String("orderBy", &orderBy).
-		BindError() // returns first binding error
-
-	if err = q.SetPage(page); err != nil {
+	// var page, size, orderBy string
+	var fQuest FilterRequest
+	if err := c.Bind(&fQuest); err != nil {
 		return nil, err
 	}
-	if err = q.SetSize(size); err != nil {
-		return nil, err
+	q.Filters = fQuest.Filters
+	for _, filter := range q.Filters {
+		fmt.Println("filter", filter.Comparison)
 	}
-	q.SetOrderBy(orderBy)
-
 	return q, nil
 }
 

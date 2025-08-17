@@ -18,7 +18,7 @@ import (
 
 func Maproute(ctx context.Context, validator *validator.Validate,log logger.ILogger, e *echo.Echo) {
 	group:= e.Group("/api/v1/articles/get")
-		group.GET(
+		group.POST(
 			"/",
 			getArticlesHandler(ctx), 
 		)
@@ -32,13 +32,15 @@ func getArticlesHandler(ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error{
 		
 		listQuery, err:=utils.GetListQueryFromCtx(c)
-		
+		// for _, filter:=range listQuery.Filters{ 
+		// 	fmt.Println("filter", filter) 
+		// }
 		if err!=nil{ return c.JSON(http.StatusBadRequest, err) }
 		getArticlesCommand := commandsv1.NewGetArticles(listQuery)
-		
+		fmt.Println("getArticlesCommand", getArticlesCommand.ListQuery)
 		result, err := mediatr.Send[*commandsv1.GetArticles, []*dtosv1.ResponseArticleDto](ctx,
 		 getArticlesCommand)
-		
+		fmt.Println("result", result)
 		
 
 

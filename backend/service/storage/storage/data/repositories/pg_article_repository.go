@@ -107,7 +107,6 @@ func (p *PostgresArticleRepository) GetAllArticles(ctx context.Context, listQuer
 
     // Apply ordering
     if listQuery.OrderBy != "" {
-        // ⚠️ sanitize allowed columns if needed to prevent SQL injection
         baseQuery += " ORDER BY " + listQuery.OrderBy
     }
 
@@ -124,6 +123,8 @@ func (p *PostgresArticleRepository) GetAllArticles(ctx context.Context, listQuer
     baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 
     // ---- Execute SQL ----
+    fmt.Println("baseQuery", baseQuery)
+
     rows, err := p.gorm.DB.Query(baseQuery, args...)
     if err != nil {
         return nil, err
