@@ -1,9 +1,11 @@
 ## First Look 
 
-<img width="1908" height="906" alt="image" src="https://github.com/user-attachments/assets/57dee43b-09c5-452f-90e9-741eaa842684" />
+<img width="1905" height="941" alt="image" src="https://github.com/user-attachments/assets/21b8dc28-4e73-4d0e-9dd8-052d1b8be7a4" />
+
 Put in your URL here
 <div align="center">
-<img width="509" height="293" alt="image" src="https://github.com/user-attachments/assets/e106a4dd-c542-4c1e-ad43-092867b30da0" />
+<img width="923" height="452" alt="image" src="https://github.com/user-attachments/assets/f5ef634a-1f23-48fa-b6b2-d5e011490dc8" />
+
 </div>
 
 ## Structure of Project
