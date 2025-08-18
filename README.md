@@ -6,14 +6,10 @@
 Put in your URL here
 <div align="center">
   <img width="820" height="291" alt="image" src="https://github.com/user-attachments/assets/8cecaf46-e2ab-4fa5-baf7-35701cdc1fe8" />
-
-</div>
-
-
-<div>
   <img width="828" height="256" alt="image" src="https://github.com/user-attachments/assets/55cb24d9-2c46-4bcb-b2fb-ac7cf4e2e052" />
 
 </div>
+<img width="1904" height="945" alt="image" src="https://github.com/user-attachments/assets/8f781230-8dee-41c7-b9e3-03195676b0cb" />
 
 ## Structure of Project
 <div align="center">
