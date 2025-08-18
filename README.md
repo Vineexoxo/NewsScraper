@@ -1,10 +1,17 @@
 ## First Look 
 
-<img width="1905" height="941" alt="image" src="https://github.com/user-attachments/assets/21b8dc28-4e73-4d0e-9dd8-052d1b8be7a4" />
+<img width="1906" height="933" alt="image" src="https://github.com/user-attachments/assets/b73fab36-55bd-4b1b-9cd2-2e1381926596" />
+<img width="1903" height="944" alt="image" src="https://github.com/user-attachments/assets/15f9f1f9-f094-4a9b-b7af-df6d00144b47" />
 
 Put in your URL here
 <div align="center">
-<img width="923" height="452" alt="image" src="https://github.com/user-attachments/assets/f5ef634a-1f23-48fa-b6b2-d5e011490dc8" />
+  <img width="820" height="291" alt="image" src="https://github.com/user-attachments/assets/8cecaf46-e2ab-4fa5-baf7-35701cdc1fe8" />
+
+</div>
+
+
+<div>
+  <img width="828" height="256" alt="image" src="https://github.com/user-attachments/assets/55cb24d9-2c46-4bcb-b2fb-ac7cf4e2e052" />
 
 </div>
 
