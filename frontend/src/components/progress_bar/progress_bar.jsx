@@ -33,8 +33,11 @@ export default function ProgressBar({loading, data}) {
                             Loading...
                         </Text>
                         :
-                        <Button asChild>
-                            <Link to={`/articles/${encodeURIComponent(data.link)}`}>
+                        <Button asChild onClick={() => {
+                            
+                        }}>
+                            <Link 
+                            to={`/articles/${encodeURIComponent(data.link)}`}>
                                 Done
                             </Link>
                         </Button>

@@ -1,3 +1,4 @@
+import { Text } from "@/components/retroui/Text";
 import React from "react";
 
 export default function HeroSection() {
@@ -11,7 +12,7 @@ export default function HeroSection() {
 
             {/* Content */}
             <div className="relative z-10 text-center px-6">
-                <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
+                <Text as="h1" className="text-5xl md:text-6xl font-extrabold leading-tight">
                     Scrape Websites and make your{" "}
                     <span className="relative inline-block">
                         <span className="relative text-black z-10"> life easy!</span>
@@ -19,7 +20,7 @@ export default function HeroSection() {
                             life easy!
                         </span>
                     </span>
-                </h1>
+                </Text>
 
                 <p className="mt-6 text-gray-600 max-w-xl mx-auto text-lg">
                     We do the heavy lifting for you, so you can focus on what matters most.

@@ -35,14 +35,15 @@ function DialogStyleDefault() {
                     </form>):
                 clicked ? (
                     <form className="flex flex-col gap-4">
-                        <ProgressBar loading={loading} data={data}/>
+                        <ProgressBar
+                         loading={loading} data={data}/>
                     </form>
                  ) :(
 
 
                         <form className="flex flex-col gap-2">
                                 <div className="flex flex-col p-4 gap-2">
-                                <Label className="mb-10">Enter URL</Label>
+                                <Label className="mb-1">Enter URL</Label>
                                 <Input className="mb-5" placeholder="Whatever you want"
                                     onChange={(e) => { SetUrl(e.target.value) }}>
 
