@@ -2,6 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArticleCard } from "../../components/catalog_item/article_card";
+import HeroSection from "@/components/hero/hero";
 
 // Single-file React component (TailwindCSS required in the project)
 // Usage: paste into a Vite/CRA React project and ensure Tailwind + Framer Motion are installed.
@@ -36,12 +37,13 @@ const ARTICLES = [
 
 export default function NewspaperLikeSite() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-      {ARTICLES.map(({id,title,byline,excerpt,time}) => (
-        <ArticleCard key={id} text={excerpt} />
-      ))}
+    // <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+    //   {ARTICLES.map(({id,title,byline,excerpt,time}) => (
+    //     <ArticleCard key={id} text={excerpt} />
+    //   ))}
 
 
-    </div>
+    // </div>
+    <HeroSection/>
   );
 }

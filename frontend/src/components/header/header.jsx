@@ -7,6 +7,7 @@ import { Input } from "@/components/retroui/Input";
 import ProgressBar from "../progress_bar/progress_bar";
 import { useFetch } from "@/hooks/useFetch";
 import { Text } from "@/components/retroui/Text";
+import { Link } from "react-router-dom";
 function DialogStyleDefault() {
     let [url, SetUrl] = useState("");
     let [clicked, setClicked] = useState(false);
@@ -84,7 +85,12 @@ export default function Header() {
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-                <h1 className="text-black font-bold text-lg">NewsScraper</h1>
+                <h1 className="text-black font-bold text-lg">
+                <Link to="/">
+                NewsScraper
+                </Link>    
+                    
+                </h1>
                 <nav className="flex space-x-6 text-black">
                     <><DialogStyleDefault/></>
                     <div className="hover:underline decoration-primary mt-2 "><a href="#pricing">Pricing</a></div>
